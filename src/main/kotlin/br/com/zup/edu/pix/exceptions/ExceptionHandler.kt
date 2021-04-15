@@ -1,4 +1,4 @@
-package br.com.zup.edu.pix.registrachave.exceptions
+package br.com.zup.edu.pix.exceptions
 
 import io.grpc.Metadata
 import io.grpc.Status
@@ -12,9 +12,9 @@ interface ExceptionHandler<E: Exception> {
 
     fun supports(e: Exception): Boolean
 
-    data class StatusWithDetails(private val status: Status, private val metadata: Metadata = Metadata()){
+    data class StatusWithDetails(val status: Status, val metadata: Metadata = Metadata()){
 
-        constructor(se: StatusRuntimeException): this(se.status, se.trailers?: Metadata())
+        constructor(se: StatusRuntimeException): this(se.status, se.trailers ?: Metadata())
         constructor(sp: com.google.rpc.Status): this(StatusProto.toStatusRuntimeException(sp))
 
         fun asRuntimeException(): StatusRuntimeException{

@@ -1,26 +1,27 @@
 package br.com.zup.edu.pix.registrachave.annotations
 
-import br.com.zup.edu.pix.ChavePix
 import br.com.zup.edu.pix.registrachave.NovaChavePix
-import io.micronaut.core.annotation.AnnotationValue
-import io.micronaut.validation.validator.constraints.ConstraintValidator
-import io.micronaut.validation.validator.constraints.ConstraintValidatorContext
 import javax.inject.Singleton
 
 @Singleton
-class ValidPixKeyValidator: ConstraintValidator<ValidPixKey, NovaChavePix> {
+class ValidPixKeyValidator: javax.validation.ConstraintValidator<ValidPixKey, NovaChavePix> {
 
     override fun isValid(
         value: NovaChavePix?,
-        annotationMetadata: AnnotationValue<ValidPixKey>,
-        context: ConstraintValidatorContext
+        context: javax.validation.ConstraintValidatorContext
     ): Boolean {
 
         if (value?.tipoDeChave == null){
-            return false
+            return true
         }
 
-        return value.tipoDeChave.validacao(value.chave)
+        val valid = value.tipoDeChave.validacao(value.chave)
+        if(!valid){
+            context.disableDefaultConstraintViolation()
+            context.buildConstraintViolationWithTemplate(context.defaultConstraintMessageTemplate)
+                .addPropertyNode("chave").addConstraintViolation()
+        }
+
+        return valid
     }
 }
-

@@ -1,4 +1,4 @@
-package br.com.zup.edu.pix.registrachave.exceptions
+package br.com.zup.edu.pix.exceptions
 
 import io.micronaut.aop.Around
 import io.micronaut.context.annotation.Type

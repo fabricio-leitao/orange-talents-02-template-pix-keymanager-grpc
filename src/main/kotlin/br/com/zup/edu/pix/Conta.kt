@@ -27,4 +27,8 @@ data class Conta(
     @field:Size(max = 6)
     @Column(nullable = false, length = 6)
     val numeroDaConta: String
-)
+){
+    companion object {
+        public val ITAU_UNIBANCO_ISPB: String = "60701190"
+    }
+}
