@@ -6,7 +6,7 @@ import br.com.zup.edu.TipoDeConta.valueOf
 import br.com.zup.edu.pix.ChavePix
 import br.com.zup.edu.pix.integracao.itau.ContaItauClient
 import br.com.zup.edu.pix.exceptions.ErrorHandler
-import br.com.zup.edu.pix.registrachave.repositories.ChavePixRepository
+import br.com.zup.edu.pix.repositories.ChavePixRepository
 import io.grpc.stub.StreamObserver
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory

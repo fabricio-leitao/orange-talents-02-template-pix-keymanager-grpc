@@ -58,6 +58,7 @@ dependencies {
     runtimeOnly("com.fasterxml.jackson.module:jackson-module-kotlin")
     runtimeOnly("org.postgresql:postgresql")
     testImplementation("io.micronaut:micronaut-http-client")
+    implementation("io.micronaut.xml:micronaut-jackson-xml")
     // https://mvnrepository.com/artifact/org.mockito/mockito-all
     testImplementation group: 'org.mockito', name: 'mockito-all', version: '1.10.19'
 

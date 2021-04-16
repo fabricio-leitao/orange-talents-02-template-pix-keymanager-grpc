@@ -10,7 +10,7 @@ import br.com.zup.edu.pix.integracao.itau.ContaItauClient
 import br.com.zup.edu.pix.integracao.itau.DadosContaResponse
 import br.com.zup.edu.pix.integracao.itau.InstituicaoResponse
 import br.com.zup.edu.pix.integracao.itau.TitularResponse
-import br.com.zup.edu.pix.registrachave.repositories.ChavePixRepository
+import br.com.zup.edu.pix.repositories.ChavePixRepository
 import io.grpc.ManagedChannel
 import io.grpc.Status
 import io.grpc.StatusRuntimeException

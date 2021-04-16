@@ -35,7 +35,7 @@ class ChavePix(
     @field:Valid
     @Embedded
     val conta: Conta
-){
+) {
     @Id
     @GeneratedValue
     val id: UUID? = null
@@ -46,5 +46,9 @@ class ChavePix(
 
     override fun toString(): String {
         return "ChavePix(clienteId=$clienteId, tipo=$tipoDeChave, chave='$chave', tipoDeConta=$tipoDeConta, conta=$conta, id=$id, criadaEm=$criadaEm)"
+    }
+
+    fun isAletoria(): Boolean {
+        return tipoDeChave == TipoDeChave.ALEATORIA
     }
 }

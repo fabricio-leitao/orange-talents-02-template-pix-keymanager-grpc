@@ -6,7 +6,7 @@ import br.com.zup.edu.TipoDeConta
 import br.com.zup.edu.pix.ChavePix
 import br.com.zup.edu.pix.Conta
 import br.com.zup.edu.pix.registrachave.enums.TipoDeChave
-import br.com.zup.edu.pix.registrachave.repositories.ChavePixRepository
+import br.com.zup.edu.pix.repositories.ChavePixRepository
 import io.grpc.ManagedChannel
 import io.grpc.Status
 import io.grpc.StatusRuntimeException

@@ -1,4 +1,4 @@
-package br.com.zup.edu.pix.registrachave.repositories
+package br.com.zup.edu.pix.repositories
 
 import br.com.zup.edu.pix.ChavePix
 import io.micronaut.data.annotation.Repository
