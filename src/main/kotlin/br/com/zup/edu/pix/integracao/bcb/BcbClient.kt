@@ -18,4 +18,8 @@ interface BcbClient {
     @Consumes(MediaType.APPLICATION_XML)
     fun delete(@PathVariable key: String, @Body request: DeletaChavepixRequest): HttpResponse<DeletaChavePixResponse>
 
+    @Get("/api/v1/pix/keys/{key}")
+    @Consumes(MediaType.APPLICATION_XML)
+    fun findByKey(@PathVariable key: String): HttpResponse<DetalheChavePixResponse>
+
 }

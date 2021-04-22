@@ -11,8 +11,7 @@ data class CriaChavepixRequest(
     val keyType: PixKeyType,
     val key: String,
     val bankAccount: BankAccount,
-    val owner: Owner,
-    val createdAt: LocalDateTime
+    val owner: Owner
 ){
     companion object {
         fun of(chavePix: ChavePix): CriaChavepixRequest {
@@ -29,8 +28,7 @@ data class CriaChavepixRequest(
                     type = OwnerType.NATURAL_PERSON,
                     name = chavePix.conta.titular,
                     taxIdNumber = chavePix.conta.cpf
-                ),
-                createdAt = LocalDateTime.now()
+                )
             )
         }
     }

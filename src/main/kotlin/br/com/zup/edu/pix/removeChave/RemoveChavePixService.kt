@@ -22,8 +22,8 @@ class RemoveChavePixService(
 
     @Transactional
     fun remove(
-        @NotBlank @ValidUUID(message = "cliente ID com formato inválido") clienteId: String?,
-        @NotBlank @ValidUUID(message = "pix ID com formato inválido") pixId: String?
+        @NotBlank @ValidUUID clienteId: String?,
+        @NotBlank @ValidUUID pixId: String?
     ){
         val pixIdUUID = UUID.fromString(pixId)
         val clienteIdUUID = UUID.fromString(clienteId)
@@ -31,14 +31,15 @@ class RemoveChavePixService(
         val chave = repository.findByIdAndClienteId(pixIdUUID, clienteIdUUID)
             .orElseThrow { IllegalStateException("Chave Pix não encontrada!") }
 
-        val bcbDelete = bcbClient.delete(
-            key = chave.chave,
-            request = DeletaChavepixRequest(key = pixId.toString())
-        )
+        repository.delete(chave)
 
-        if(bcbDelete.status != HttpStatus.OK){
-            throw IllegalStateException("Erro ao remover chave pix no banco central!")
-        }
+        val request = DeletaChavepixRequest(chave.chave)
+
+        val bcbDelete = bcbClient.delete(key = chave.chave, request = request)
+
+            if(bcbDelete.status != HttpStatus.OK){
+                throw IllegalStateException("Erro ao remover chave pix no banco central!")
+            }
 
         repository.deleteById(pixIdUUID)
     }

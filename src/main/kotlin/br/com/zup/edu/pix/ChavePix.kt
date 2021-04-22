@@ -51,4 +51,13 @@ class ChavePix(
     fun isAletoria(): Boolean {
         return tipoDeChave == TipoDeChave.ALEATORIA
     }
+
+    fun atualiza(key: String) {
+
+        if(this.tipoDeChave == TipoDeChave.ALEATORIA){
+            this.chave = key
+        }
+    }
+
+    fun pertenceAo(clienteId: UUID) = this.clienteId.equals(clienteId)
 }

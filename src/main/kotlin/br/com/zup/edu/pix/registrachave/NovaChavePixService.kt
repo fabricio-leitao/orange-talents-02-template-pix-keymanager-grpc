@@ -1,6 +1,7 @@
 package br.com.zup.edu.pix.registrachave
 
 import br.com.zup.edu.pix.ChavePix
+import br.com.zup.edu.pix.exceptions.ClientNotFoundException
 import br.com.zup.edu.pix.integracao.itau.ContaItauClient
 import br.com.zup.edu.pix.exceptions.ExistingPixKeyException
 import br.com.zup.edu.pix.exceptions.PixKeyNotFoundException
@@ -35,28 +36,32 @@ class NovaChavePixService(
     fun registra(@Valid novaChave: NovaChavePix): ChavePix {
 
         if (repository.existsByChave(novaChave.chave)) {
-            throw
-            ExistingPixKeyException("Chave Pix '${novaChave.chave}' existente")
+            throw ExistingPixKeyException("Chave Pix '${novaChave.chave}' existente")
         }
 
         val response = itauClient.buscaConta(UUID.fromString(novaChave.clienteId)!!, novaChave.tipoDeConta!!.name)
+        if (response.body() == null) {
+            throw ClientNotFoundException("Cliente não encontrado no Itau")
+        }
         val conta = response.body()?.toModel() ?: throw PixKeyNotFoundException("Cliente não encontrado no Itau")
 
         val chave = novaChave.toModel(conta)
-        repository.save(chave)
+
 
         val clienteItau = response.body()!!
 
         val bcbRequest = CriaChavepixRequest.of(chave)
 
         val bcbResponse = bcbClient.create(bcbRequest)
-        if(bcbResponse.status != HttpStatus.CREATED){
+        if (bcbResponse.status != HttpStatus.CREATED) {
             throw IllegalStateException("Error ao regitrar chave Pix no Banco central do Brasil")
         }
 
-        if(chave.isAletoria()){
+        if (chave.isAletoria()) {
             chave.chave = bcbResponse.body()!!.key
         }
+
+        repository.save(chave)
 
         return chave
     }

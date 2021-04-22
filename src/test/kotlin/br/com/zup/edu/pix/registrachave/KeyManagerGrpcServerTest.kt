@@ -6,6 +6,10 @@ import br.com.zup.edu.TipoDeChave
 import br.com.zup.edu.TipoDeConta
 import br.com.zup.edu.pix.ChavePix
 import br.com.zup.edu.pix.Conta
+import br.com.zup.edu.pix.integracao.bcb.*
+import br.com.zup.edu.pix.integracao.bcb.enums.AccountType
+import br.com.zup.edu.pix.integracao.bcb.enums.OwnerType
+import br.com.zup.edu.pix.integracao.bcb.enums.PixKeyType
 import br.com.zup.edu.pix.integracao.itau.ContaItauClient
 import br.com.zup.edu.pix.integracao.itau.DadosContaResponse
 import br.com.zup.edu.pix.integracao.itau.InstituicaoResponse
@@ -27,15 +31,18 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.mockito.Mockito
 import org.mockito.Mockito.`when`
+import java.time.LocalDateTime
 import java.util.*
 import javax.inject.Inject
 import javax.transaction.Transactional
 
 @MicronautTest(transactional = false)
-class KeyManagerGrpcServerTest(
+internal class KeyManagerGrpcServerTest(
     val repository: ChavePixRepository,
     val grpcClient: KeymanagerGrpcServiceGrpc.KeymanagerGrpcServiceBlockingStub
 ) {
+    @Inject
+    lateinit var bcbClient: BcbClient
     @Inject
     lateinit var itauClient: ContaItauClient
 
@@ -52,6 +59,9 @@ class KeyManagerGrpcServerTest(
     fun `registra nova chave pix com email`() {
         `when`(itauClient.buscaConta(clienteId = CLIENTE_ID, tipo = "CONTA_CORRENTE"))
             .thenReturn(HttpResponse.ok(dadosContaResponse()))
+
+        `when`(bcbClient.create(criaChavePixRequest()))
+            .thenReturn(HttpResponse.created(criaChavePixResponse()))
 
         val response = grpcClient.registra(
             ChavePixRequest.newBuilder()
@@ -194,6 +204,33 @@ class KeyManagerGrpcServerTest(
         }
     }
 
+    @Test
+    fun `nao registra chave pix quando nao for possivel registrar no Bcb`() {
+        `when`(itauClient.buscaConta(clienteId = CLIENTE_ID, tipo = "CONTA_CORRENTE"))
+            .thenReturn(HttpResponse.ok(dadosContaResponse()))
+
+        `when` (bcbClient.create(criaChavePixRequest()))
+            .thenReturn(HttpResponse.badRequest())
+
+        val thrown = assertThrows<StatusRuntimeException> {
+            grpcClient.registra(ChavePixRequest.newBuilder()
+                .setClienteId(CLIENTE_ID.toString())
+                .setTipoDeChave(TipoDeChave.EMAIL)
+                .setChave("todoroki@gmail.com")
+                .setTipoDeConta(TipoDeConta.CONTA_CORRENTE)
+                .build())
+        }
+
+        with(thrown){
+            assertEquals(Status.FAILED_PRECONDITION.code, status.code)
+            assertEquals("Error ao regitrar chave Pix no Banco central do Brasil", status.description)
+        }
+    }
+
+    @MockBean(BcbClient::class)
+    fun bcbClient(): BcbClient? {
+        return Mockito.mock(BcbClient::class.java)
+    }
 
     @MockBean(ContaItauClient::class)
     fun itauClient(): ContaItauClient? {
@@ -218,6 +255,42 @@ class KeyManagerGrpcServerTest(
         )
     }
 
+    private fun criaChavePixRequest(): CriaChavepixRequest {
+        return CriaChavepixRequest(
+            keyType = PixKeyType.EMAIL,
+            key = "todoroki@gmail.com",
+            bankAccount = bankAccount(),
+            owner = owner()
+        )
+    }
+
+    private fun criaChavePixResponse(): CriaChavePixResponse {
+        return CriaChavePixResponse(
+            keyType = PixKeyType.EMAIL,
+            key = "todoroki@gmail.com",
+            bankAccount = bankAccount(),
+            owner = owner(),
+            createdAt = LocalDateTime.now()
+        )
+    }
+
+    private fun bankAccount(): BankAccount {
+        return BankAccount(
+            participant = Conta.ITAU_UNIBANCO_ISPB,
+            branch = "1218",
+            accountNumber = "291900",
+            accountType = AccountType.CACC
+        )
+    }
+
+    private fun owner(): Owner {
+        return  Owner(
+            type = OwnerType.NATURAL_PERSON,
+            name = "Todoroki Shoto",
+            taxIdNumber = "12312312323"
+        )
+    }
+
     private fun chave(
         tipoDeChave: br.com.zup.edu.pix.registrachave.enums.TipoDeChave,
         chave: String = UUID.randomUUID().toString(),
@@ -238,5 +311,7 @@ class KeyManagerGrpcServerTest(
             )
         )
     }
+
+
 
 }
